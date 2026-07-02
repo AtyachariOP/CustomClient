@@ -1,9 +1,9 @@
 import React from 'react';
-import { Home as HomeIcon, Compass, Library, Settings, LogIn, Users, Image as ImageIcon } from 'lucide-react';
+import { Gamepad2, Compass, Library, Settings, LogIn, Users, Image as ImageIcon } from 'lucide-react';
 
 export default function Sidebar({ activeTab, setActiveTab }: { activeTab: string, setActiveTab: (tab: string) => void }) {
   const topItems = [
-    { id: 'home', icon: HomeIcon, label: 'Home' },
+    { id: 'home', icon: Gamepad2, label: 'Home' },
     { id: 'discover', icon: Compass, label: 'Discover' },
     { id: 'library', icon: Library, label: 'Library' },
     { id: 'screenshots', icon: ImageIcon, label: 'Screenshots' }
@@ -22,10 +22,8 @@ export default function Sidebar({ activeTab, setActiveTab }: { activeTab: string
       zIndex: 10
     }}>
       {/* Brand Icon */}
-      <div style={{ color: 'var(--accent-primary)', marginBottom: '32px' }}>
-        <svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor">
-          <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-        </svg>
+      <div style={{ marginBottom: '32px' }}>
+        <img src="/logo.png" alt="Custom Client Logo" style={{ width: '36px', height: '36px', objectFit: 'contain' }} />
       </div>
 
       {/* Main Nav */}
@@ -37,7 +35,7 @@ export default function Sidebar({ activeTab, setActiveTab }: { activeTab: string
             style={{
               background: 'transparent',
               border: 'none',
-              color: activeTab === item.id ? 'var(--accent-primary)' : 'var(--text-secondary)',
+              color: activeTab === item.id ? 'white' : 'var(--text-secondary)',
               padding: '12px',
               borderRadius: '8px',
               cursor: 'pointer',
@@ -46,7 +44,7 @@ export default function Sidebar({ activeTab, setActiveTab }: { activeTab: string
             }}
             title={item.label}
           >
-            <item.icon size={24} />
+            <item.icon size={24} fill={activeTab === item.id ? "currentColor" : "none"} />
             {activeTab === item.id && (
               <div style={{
                 position: 'absolute',
@@ -55,7 +53,7 @@ export default function Sidebar({ activeTab, setActiveTab }: { activeTab: string
                 transform: 'translateY(-50%)',
                 width: '4px',
                 height: '24px',
-                backgroundColor: 'var(--accent-primary)',
+                backgroundColor: 'white',
                 borderRadius: '0 4px 4px 0'
               }} />
             )}
@@ -74,10 +72,22 @@ export default function Sidebar({ activeTab, setActiveTab }: { activeTab: string
         </button>
         <button
           onClick={() => setActiveTab('settings')}
-          style={{ background: 'transparent', border: 'none', color: activeTab === 'settings' ? 'var(--accent-primary)' : 'var(--text-secondary)', padding: '12px', cursor: 'pointer' }}
+          style={{ background: 'transparent', border: 'none', color: activeTab === 'settings' ? 'white' : 'var(--text-secondary)', padding: '12px', cursor: 'pointer', position: 'relative' }}
           title="Settings"
         >
-          <Settings size={24} />
+          <Settings size={24} fill={activeTab === 'settings' ? "currentColor" : "none"} />
+          {activeTab === 'settings' && (
+            <div style={{
+              position: 'absolute',
+              left: '-20px',
+              top: '50%',
+              transform: 'translateY(-50%)',
+              width: '4px',
+              height: '24px',
+              backgroundColor: 'white',
+              borderRadius: '0 4px 4px 0'
+            }} />
+          )}
         </button>
         <button
           style={{ background: 'transparent', border: 'none', color: 'var(--accent-primary)', padding: '12px', cursor: 'pointer', marginTop: '8px' }}

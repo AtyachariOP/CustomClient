@@ -1,21 +1,130 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Search, Grid, List, Download, Share2, Trash2, Calendar, Folder } from 'lucide-react';
 
 export default function Screenshots() {
-  const generatePlaceholder = (text: string, width = 640, height = 360) => {
-    return `data:image/svg+xml;utf8,<svg width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" fill="none" xmlns="http://www.w3.org/2000/svg"><rect width="${width}" height="${height}" fill="%231a1b1e"/><text fill="rgba(255,255,255,0.3)" xml:space="preserve" style="white-space: pre" font-family="sans-serif" font-size="20" font-weight="bold" text-anchor="middle" dominant-baseline="middle" x="${width/2}" y="${height/2}">${text}</text></svg>`;
+  const [screenshots, setScreenshots] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [hovered, setHovered] = useState<number | null>(null);
+  const [copiedId, setCopiedId] = useState<number | null>(null);
+
+  const loadScreenshots = () => {
+    try {
+      if (!window.require) {
+        console.warn("Node integration not available. Cannot read local files.");
+        setLoading(false);
+        return;
+      }
+      const fs = window.require('fs');
+      const path = window.require('path');
+      const os = window.require('os');
+      
+      const mcPath = path.join(os.homedir(), 'AppData', 'Roaming', '.minecraft', 'screenshots');
+      
+      if (fs.existsSync(mcPath)) {
+        const files = fs.readdirSync(mcPath);
+        const imageFiles = files.filter((f: string) => f.toLowerCase().endsWith('.png'));
+        
+        // Sort newest first
+        imageFiles.sort((a: string, b: string) => {
+          return fs.statSync(path.join(mcPath, b)).mtimeMs - fs.statSync(path.join(mcPath, a)).mtimeMs;
+        });
+        
+        const loadedShots = imageFiles.map((file: string, index: number) => {
+          const filePath = path.join(mcPath, file);
+          const stats = fs.statSync(filePath);
+          const sizeMB = (stats.size / (1024 * 1024)).toFixed(1) + ' MB';
+          
+          const d = new Date(stats.mtimeMs);
+          const dateStr = d.toISOString().split('T')[0];
+          const timeStr = d.toTimeString().split(' ')[0];
+          
+          const imgUrl = `file:///${filePath.replace(/\\/g, '/')}`;
+          
+          return {
+            id: index,
+            name: file,
+            date: dateStr,
+            time: timeStr,
+            size: sizeMB,
+            server: 'Local File',
+            img: imgUrl,
+            path: filePath
+          };
+        });
+        
+        setScreenshots(loadedShots);
+      }
+    } catch (e) {
+      console.error('Failed to load screenshots:', e);
+    }
+    setLoading(false);
   };
 
-  const screenshots = [
-    { id: 1, date: '2026-07-01', time: '14:32:10', size: '2.4 MB', server: 'mc.hypixel.net', img: generatePlaceholder('WIP - Bedwars Win Screenshot') },
-    { id: 2, date: '2026-07-01', time: '12:15:00', size: '1.8 MB', server: 'Singleplayer', img: generatePlaceholder('WIP - Survival House Screenshot') },
-    { id: 3, date: '2026-06-29', time: '18:45:33', size: '3.1 MB', server: 'play.mccisland.net', img: generatePlaceholder('WIP - Skybattle Screenshot') },
-    { id: 4, date: '2026-06-28', time: '09:12:05', size: '2.0 MB', server: 'play.wynncraft.com', img: generatePlaceholder('WIP - Wynncraft Quest Screenshot') },
-    { id: 5, date: '2026-06-25', time: '21:05:40', size: '4.5 MB', server: 'mc.hypixel.net', img: generatePlaceholder('WIP - Skyblock Hub Screenshot') },
-    { id: 6, date: '2026-06-20', time: '16:20:12', size: '1.9 MB', server: 'Singleplayer', img: generatePlaceholder('WIP - Redstone Build Screenshot') },
-  ];
+  useEffect(() => {
+    loadScreenshots();
+  }, []);
 
-  const [hovered, setHovered] = useState<number | null>(null);
+  const handleOpenFolder = () => {
+    try {
+      if (!window.require) return;
+      const { shell } = window.require('electron');
+      const os = window.require('os');
+      const path = window.require('path');
+      const mcPath = path.join(os.homedir(), 'AppData', 'Roaming', '.minecraft', 'screenshots');
+      shell.openPath(mcPath);
+    } catch(e) {
+      console.error(e);
+    }
+  };
+
+  const handleOpenImage = (path: string) => {
+    try {
+      if (!window.require) return;
+      const { shell } = window.require('electron');
+      shell.openPath(path);
+    } catch(e) {
+      console.error(e);
+    }
+  };
+
+  const handleShare = (e: React.MouseEvent, shot: any) => {
+    e.stopPropagation();
+    try {
+      if (!window.require) return;
+      const nativeImage = window.require('electron').nativeImage;
+      const image = nativeImage.createFromPath(shot.path);
+      window.require('electron').clipboard.writeImage(image);
+      
+      setCopiedId(shot.id);
+      setTimeout(() => setCopiedId(null), 2500);
+    } catch (err) {
+      console.error('Failed to copy image:', err);
+    }
+  };
+
+  const handleDownload = (e: React.MouseEvent, shot: any) => {
+    e.stopPropagation();
+    const a = document.createElement('a');
+    a.href = shot.img;
+    a.download = shot.name;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  };
+
+  const handleDelete = (e: React.MouseEvent, shot: any) => {
+    e.stopPropagation();
+    if (window.confirm(`Are you sure you want to delete ${shot.name}? This cannot be undone.`)) {
+      try {
+        if (!window.require) return;
+        const fs = window.require('fs');
+        fs.unlinkSync(shot.path);
+        setScreenshots(prev => prev.filter(s => s.id !== shot.id));
+      } catch (err) {
+        console.error('Failed to delete screenshot:', err);
+      }
+    }
+  };
 
   return (
     <div className="animate-fade" style={{ display: 'flex', flexDirection: 'column', height: '100%', gap: '24px' }}>
@@ -35,7 +144,7 @@ export default function Screenshots() {
             <input type="text" placeholder="Search by server..." style={{ background: 'transparent', border: 'none', color: 'white', outline: 'none', width: '200px', fontSize: '13px' }} />
           </div>
           
-          <button className="glass btn" style={{ padding: '10px', borderRadius: '8px' }}>
+          <button className="glass btn" onClick={handleOpenFolder} style={{ padding: '10px', borderRadius: '8px' }} title="Open Screenshots Folder">
             <Folder size={18} />
           </button>
           
@@ -49,6 +158,12 @@ export default function Screenshots() {
       {/* Gallery Grid */}
       <div style={{ flex: 1, overflowY: 'auto', paddingRight: '8px' }}>
         <div className="grid-container" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(350px, 1fr))', gap: '24px', paddingBottom: '32px' }}>
+          {screenshots.length === 0 && !loading && (
+             <div style={{ padding: '48px', color: 'var(--text-secondary)', gridColumn: '1 / -1', textAlign: 'center' }}>
+               No screenshots found in your .minecraft folder!
+             </div>
+          )}
+          
           {screenshots.map((shot) => (
             <div 
               key={shot.id} 
@@ -65,30 +180,39 @@ export default function Screenshots() {
               onMouseOver={() => setHovered(shot.id)}
               onMouseOut={() => setHovered(null)}
             >
-              <div style={{ position: 'relative', width: '100%', height: '200px' }}>
+              <div style={{ position: 'relative', width: '100%', height: '200px', cursor: 'pointer' }} onClick={() => handleOpenImage(shot.path)}>
                 <img src={shot.img} alt={`Screenshot ${shot.date}`} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                 
                 {/* Hover overlay actions */}
                 <div style={{ 
                   position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.5)', 
-                  display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '16px',
+                  display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '12px',
                   opacity: hovered === shot.id ? 1 : 0, transition: 'opacity 0.2s', backdropFilter: 'blur(2px)'
                 }}>
-                  <button className="glass" style={{ padding: '12px', borderRadius: '50%', background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', color: 'white', cursor: 'pointer' }} title="Download">
-                    <Download size={20} />
-                  </button>
-                  <button className="glass" style={{ padding: '12px', borderRadius: '50%', background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', color: 'white', cursor: 'pointer' }} title="Share">
-                    <Share2 size={20} />
-                  </button>
-                  <button className="glass" style={{ padding: '12px', borderRadius: '50%', background: 'rgba(239, 68, 68, 0.2)', border: '1px solid rgba(239, 68, 68, 0.4)', color: '#ef4444', cursor: 'pointer' }} title="Delete">
-                    <Trash2 size={20} />
-                  </button>
+                  <div style={{ display: 'flex', gap: '16px' }}>
+                    <button onClick={(e) => handleDownload(e, shot)} className="glass" style={{ padding: '12px', borderRadius: '50%', background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', color: 'white', cursor: 'pointer', transition: 'var(--transition-fast)' }} onMouseOver={(e) => e.currentTarget.style.background='rgba(255,255,255,0.2)'} onMouseOut={(e) => e.currentTarget.style.background='rgba(255,255,255,0.1)'} title="Download">
+                      <Download size={20} />
+                    </button>
+                    <button onClick={(e) => handleShare(e, shot)} className="glass" style={{ padding: '12px', borderRadius: '50%', background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', color: 'white', cursor: 'pointer', transition: 'var(--transition-fast)' }} onMouseOver={(e) => e.currentTarget.style.background='rgba(255,255,255,0.2)'} onMouseOut={(e) => e.currentTarget.style.background='rgba(255,255,255,0.1)'} title="Copy to Clipboard">
+                      <Share2 size={20} />
+                    </button>
+                    <button onClick={(e) => handleDelete(e, shot)} className="glass" style={{ padding: '12px', borderRadius: '50%', background: 'rgba(239, 68, 68, 0.2)', border: '1px solid rgba(239, 68, 68, 0.4)', color: '#ef4444', cursor: 'pointer', transition: 'var(--transition-fast)' }} onMouseOver={(e) => e.currentTarget.style.background='rgba(239, 68, 68, 0.4)'} onMouseOut={(e) => e.currentTarget.style.background='rgba(239, 68, 68, 0.2)'} title="Delete">
+                      <Trash2 size={20} />
+                    </button>
+                  </div>
+                  
+                  {/* Copied indicator */}
+                  {copiedId === shot.id && (
+                    <div className="animate-fade" style={{ background: 'var(--accent-primary)', color: 'white', padding: '4px 12px', borderRadius: '12px', fontSize: '12px', fontWeight: 600, boxShadow: '0 4px 12px rgba(168,85,247,0.4)' }}>
+                      Copied to clipboard!
+                    </div>
+                  )}
                 </div>
               </div>
               
               <div style={{ padding: '16px', background: 'linear-gradient(180deg, rgba(25,26,30,0.4), rgba(20,21,26,0.8))' }}>
                 <h3 style={{ fontSize: '15px', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  {shot.date}_{shot.time}.png
+                  {shot.name}
                 </h3>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '12px', color: 'var(--text-secondary)', fontSize: '12px' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>

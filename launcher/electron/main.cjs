@@ -5,14 +5,16 @@ const isDev = process.env.NODE_ENV === 'development';
 
 function createWindow() {
   const mainWindow = new BrowserWindow({
-    width: 1200,
+    width: 1360,
     height: 720,
-    minWidth: 1200,
+    minWidth: 1360,
     minHeight: 720,
+    icon: path.join(__dirname, '../public/logo.png'),
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       nodeIntegration: true,
-      contextIsolation: false
+      contextIsolation: false,
+      webSecurity: false
     },
     titleBarStyle: 'hidden', // Lunar client style borderless window
     titleBarOverlay: {

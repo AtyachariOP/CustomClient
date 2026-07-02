@@ -5,6 +5,7 @@ export default function Marketplace() {
   const [query, setQuery] = useState('');
   const [mods, setMods] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
   const [offset, setOffset] = useState(0);
   const [totalHits, setTotalHits] = useState(0);
   
@@ -37,9 +38,16 @@ export default function Marketplace() {
   };
 
   const fetchMods = async () => {
-    setLoading(true);
+    if (offset === 0) setLoading(true);
+    else setLoadingMore(true);
+    
     try {
-      let facetsList = [`["categories:fabric"]`];
+      let facetsList = [];
+      
+      // Only force Fabric loader for mods and modpacks
+      if (projectType === 'mod' || projectType === 'modpack') {
+        facetsList.push(`["categories:fabric"]`);
+      }
       
       // Project type
       facetsList.push(`["project_type:${projectType}"]`);
@@ -62,12 +70,24 @@ export default function Marketplace() {
       const url = `https://api.modrinth.com/v2/search?query=${encodeURIComponent(query)}&facets=${encodeURIComponent(facets)}&index=${sort}&limit=20&offset=${offset}`;
       const res = await fetch(url);
       const data = await res.json();
-      setMods(data.hits);
+      
+      if (offset === 0) {
+        setMods(data.hits);
+      } else {
+        setMods(prev => {
+          const newIds = new Set(data.hits.map((m: any) => m.project_id));
+          const filteredPrev = prev.filter((m: any) => !newIds.has(m.project_id));
+          return [...filteredPrev, ...data.hits];
+        });
+      }
+      
       setTotalHits(data.total_hits);
     } catch (err) {
       console.error("Failed to fetch Modrinth API:", err);
     }
+    
     setLoading(false);
+    setLoadingMore(false);
   };
 
   // Fast Search (Rate Limit Removed)
@@ -90,6 +110,7 @@ export default function Marketplace() {
   }, [viewingMod]);
 
   const toggleCategory = (cat: string) => {
+    setMods([]);
     setOffset(0); // Reset pagination
     if (selectedCategories.includes(cat)) {
       setSelectedCategories(selectedCategories.filter(c => c !== cat));
@@ -97,6 +118,31 @@ export default function Marketplace() {
       setSelectedCategories([...selectedCategories, cat]);
     }
   };
+
+  const renderSkeletons = (count: number) => (
+    <>
+      {[...Array(count)].map((_, i) => (
+        <div key={`skel-${i}`} className="glass skeleton" style={{ display: 'flex', padding: '16px', alignItems: 'center', gap: '16px', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.02)' }}>
+          <div style={{ width: '56px', height: '56px', borderRadius: '12px', background: 'rgba(255,255,255,0.05)' }} />
+          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '8px' }}>
+            <div style={{ width: '30%', height: '16px', background: 'rgba(255,255,255,0.05)', borderRadius: '4px' }} />
+            <div style={{ width: '60%', height: '12px', background: 'rgba(255,255,255,0.05)', borderRadius: '4px' }} />
+            <div style={{ display: 'flex', gap: '8px' }}>
+              <div style={{ width: '40px', height: '16px', background: 'rgba(255,255,255,0.05)', borderRadius: '12px' }} />
+              <div style={{ width: '40px', height: '16px', background: 'rgba(255,255,255,0.05)', borderRadius: '12px' }} />
+            </div>
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '8px' }}>
+            <div style={{ width: '80px', height: '12px', background: 'rgba(255,255,255,0.05)', borderRadius: '4px' }} />
+            <div style={{ display: 'flex', gap: '8px' }}>
+              <div style={{ width: '60px', height: '24px', background: 'rgba(255,255,255,0.05)', borderRadius: '6px' }} />
+              <div style={{ width: '60px', height: '24px', background: 'rgba(255,255,255,0.05)', borderRadius: '6px' }} />
+            </div>
+          </div>
+        </div>
+      ))}
+    </>
+  );
 
   // --------------------------------------------------------
   // SUB-VIEW: Mod Details Page
@@ -123,9 +169,9 @@ export default function Marketplace() {
                 <button 
                   className={isInstalled ? "glass btn" : "btn btn-primary"} 
                   onClick={() => !isInstalled && handleInstall(viewingMod.project_id)}
-                  style={{ padding: '12px 32px', fontSize: '16px', borderRadius: '12px', boxShadow: isInstalled ? 'none' : '0 4px 16px rgba(16,185,129,0.3)' }}
+                  style={{ padding: '12px 32px', fontSize: '16px', borderRadius: '12px', boxShadow: isInstalled ? 'none' : '0 4px 16px rgba(168,85,247,0.3)' }}
                 >
-                  {isInstalled ? <><CheckCircle size={18} style={{ marginRight: '8px' }} color="#10b981"/> Installed</> : 'Install Mod'}
+                  {isInstalled ? <><CheckCircle size={18} style={{ marginRight: '8px' }} color="#a855f7"/> Installed</> : 'Install Mod'}
                 </button>
                 <a href={`https://modrinth.com/mod/${viewingMod.project_id}`} target="_blank" rel="noreferrer" className="glass btn" style={{ padding: '12px 24px', borderRadius: '12px', display: 'flex', alignItems: 'center', gap: '8px', textDecoration: 'none', color: 'white' }}>
                   <ExternalLink size={18}/> View on Modrinth Website
@@ -190,7 +236,7 @@ export default function Marketplace() {
            <button 
              key={tab.type}
              className="btn-lift"
-             onClick={() => { setProjectType(tab.type); setOffset(0); }}
+             onClick={() => { setProjectType(tab.type); setMods([]); setOffset(0); }}
              style={{ 
                background: projectType === tab.type ? 'var(--accent-primary)' : 'transparent', 
                border: 'none', padding: '6px 16px', fontSize: '13px', 
@@ -217,7 +263,17 @@ export default function Marketplace() {
 
       <div style={{ display: 'flex', height: '100%', gap: '24px', overflow: 'hidden' }}>
         {/* Main Mods List */}
-        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '16px', overflowY: 'auto', paddingRight: '8px' }}>
+        <div 
+          style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '16px', overflowY: 'auto', paddingRight: '8px', minWidth: '500px' }}
+          onScroll={(e) => {
+            const target = e.currentTarget;
+            if (target.scrollHeight - target.scrollTop - target.clientHeight < 150) {
+              if (!loading && !loadingMore && offset + 20 < totalHits) {
+                setOffset(prev => prev + 20);
+              }
+            }
+          }}
+        >
           
           {/* Search Bar */}
           <div className="glass" style={{ display: 'flex', alignItems: 'center', padding: '0 16px', borderRadius: '8px', flexShrink: 0, height: '48px', background: 'rgba(25, 26, 30, 0.7)' }}>
@@ -226,14 +282,14 @@ export default function Marketplace() {
               type="text" 
               placeholder="Search Modrinth (Fabric)..." 
               value={query}
-              onChange={(e) => { setQuery(e.target.value); setOffset(0); }}
+              onChange={(e) => { setQuery(e.target.value); setMods([]); setOffset(0); }}
               style={{ background: 'transparent', border: 'none', color: 'white', outline: 'none', width: '100%', fontSize: '15px' }} 
             />
             {loading && <Loader2 className="animate-spin" size={20} color="var(--accent-primary)" />}
           </div>
 
           {/* Sort By and Pagination */}
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexShrink: 0 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexShrink: 0, flexWrap: 'wrap', gap: '12px' }}>
             <div style={{ display: 'flex', gap: '12px' }}>
               <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
                 <span style={{ fontSize: '13px', marginRight: '8px', color: 'var(--text-secondary)' }}>Sort by:</span>
@@ -263,7 +319,7 @@ export default function Marketplace() {
                       <button 
                         key={opt.value}
                         className="slide-right"
-                        onClick={() => { setSort(opt.value); setOffset(0); setIsSortOpen(false); }}
+                        onClick={() => { setSort(opt.value); setMods([]); setOffset(0); setIsSortOpen(false); }}
                         style={{ background: sort === opt.value ? 'var(--accent-primary)' : 'transparent', color: 'white', border: 'none', padding: '8px 12px', borderRadius: '6px', textAlign: 'left', fontSize: '13px', cursor: 'pointer' }}
                         onMouseOver={(e) => { 
                           if(sort !== opt.value) e.currentTarget.style.background = 'rgba(255,255,255,0.1)';
@@ -282,32 +338,21 @@ export default function Marketplace() {
                 {totalHits.toLocaleString()} results found
               </div>
             </div>
-            
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px', color: 'var(--text-secondary)' }}>
-              <button 
-                className="glass btn btn-lift" 
-                onClick={() => setOffset(Math.max(0, offset - 20))}
-                disabled={offset === 0}
-                style={{ padding: '6px 12px', opacity: offset === 0 ? 0.5 : 1 }}
-              >Prev</button>
-              <span>Page {(offset / 20) + 1}</span>
-              <button 
-                className="glass btn btn-lift" 
-                onClick={() => setOffset(offset + 20)}
-                disabled={offset + 20 >= totalHits}
-                style={{ padding: '6px 12px', opacity: offset + 20 >= totalHits ? 0.5 : 1 }}
-              >Next</button>
-            </div>
           </div>
 
           {/* Mod List */}
-          <div key={offset + query + sort + projectType + selectedCategories.join(',')} className="animate-slide-up" style={{ display: 'flex', flexDirection: 'column', gap: '12px', paddingBottom: '32px' }}>
+          <div 
+            className="animate-slide-up" 
+            style={{ display: 'flex', flexDirection: 'column', gap: '12px', paddingBottom: '32px' }}
+          >
             {mods.length === 0 && !loading && (
               <div style={{ padding: '48px', textAlign: 'center', color: 'var(--text-secondary)' }}>
                 No mods found for this query.
               </div>
             )}
             
+            {loading && offset === 0 && renderSkeletons(8)}
+
             {mods.map((mod) => {
               const isInstalled = installedMods.includes(mod.project_id);
               
@@ -367,15 +412,17 @@ export default function Marketplace() {
                       <button 
                         className={isInstalled ? "glass btn btn-lift" : "btn btn-primary btn-lift"} 
                         onClick={(e) => { e.stopPropagation(); !isInstalled && handleInstall(mod.project_id); }}
-                        style={{ padding: '6px 16px', fontSize: '13px', borderRadius: '8px', boxShadow: isInstalled ? 'none' : '0 4px 12px rgba(16,185,129,0.3)' }}
+                        style={{ padding: '6px 16px', fontSize: '13px', borderRadius: '8px', boxShadow: isInstalled ? 'none' : '0 4px 12px rgba(168,85,247,0.3)' }}
                       >
-                        {isInstalled ? <CheckCircle size={14} color="#10b981" /> : 'Install'}
+                        {isInstalled ? <CheckCircle size={14} color="#a855f7" /> : 'Install'}
                       </button>
                     </div>
                   </div>
                 </div>
               );
             })}
+            
+            {loadingMore && renderSkeletons(3)}
         </div>
       </div>
 
@@ -430,14 +477,15 @@ export default function Marketplace() {
              {['Client', 'Server'].map(env => {
                const isActive = selectedEnvironments.includes(env);
                return (
-                 <button 
-                   key={env} 
-                   onClick={() => {
-                     setOffset(0);
-                     if(isActive) setSelectedEnvironments(selectedEnvironments.filter(e => e !== env));
-                     else setSelectedEnvironments([...selectedEnvironments, env]);
-                   }}
-                   className="slide-right"
+                  <button 
+                    key={env} 
+                    onClick={() => {
+                      setMods([]);
+                      setOffset(0);
+                      if(isActive) setSelectedEnvironments(selectedEnvironments.filter(e => e !== env));
+                      else setSelectedEnvironments([...selectedEnvironments, env]);
+                    }}
+                    className="slide-right"
                    style={{ 
                      display: 'flex', alignItems: 'center', gap: '10px', fontSize: '13px', 
                      color: isActive ? 'white' : 'var(--text-secondary)', 

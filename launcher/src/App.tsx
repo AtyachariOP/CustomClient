@@ -36,6 +36,7 @@ function App() {
   return (
     <div style={{ 
       display: 'flex', width: '100%', height: '100%', position: 'relative',
+      minWidth: '1360px', minHeight: '720px', overflow: 'auto',
       '--app-cursor': cursorData ? cursorData.default : undefined,
       '--app-cursor-pointer': cursorData ? cursorData.pointer : undefined
     } as React.CSSProperties}>
@@ -62,7 +63,7 @@ function App() {
 
       <Sidebar activeTab={showSettings ? 'settings' : activeTab} setActiveTab={handleTabChange} />
       
-      <main style={{ flex: 1, padding: '32px 32px 32px 40px', overflow: 'hidden', position: 'relative' }}>
+      <main style={{ flex: 1, minWidth: '700px', padding: '32px 32px 32px 40px', overflow: 'hidden', position: 'relative' }}>
         {activeTab === 'home' && <Home />}
         {activeTab === 'discover' && <Marketplace />}
         {activeTab === 'library' && <Library />}

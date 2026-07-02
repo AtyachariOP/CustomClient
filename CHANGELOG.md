@@ -156,3 +156,123 @@
   - `launcher/src/index.css`: Lines 255-275 (Added keyframes).
   - `launcher/src/components/Marketplace.tsx`: Lines 90-320 (Swapped `animate-fade` for scale-in/slide-up classes and added the React `key` trigger for the list container).
 - **Reason:** The user wanted layout animations specifically when transitioning between pages (pagination) or switching between the mod list and the mod detail view.
+
+## [2026-07-02 23:36:00] - Iteration 20: Quick Library Home View
+- **Added:** Replaced the "Discover Themes & Modpacks" section on the Home page with a new "Quick Library" mimicking the provided screenshot.
+- **Added:** Implemented a new top bar for the Quick Library containing a Modpacks dropdown, a Search bar, a Popular sorter, and a "+ New Profile" button.
+- **Added:** Interactive Profile Selection where clicking a profile card applies a glowing green active border and updates the text underneath the main "LAUNCH GAME" button.
+- **Files/Lines Edited:**
+  - `launcher/src/components/Home.tsx`: Lines 1-86 (Updated state to manage `activeProfile`, replaced the grid section, and bound micro-animations).
+- **Reason:** The user requested to replace the Discover section with a local modpack/profile library matching a provided mockup, continuing the implementation of the heavy glassmorphic aesthetic.
+
+## [2026-07-02 23:42:00] - Iteration 21: Bugfix - Window Resizing Squish
+- **Modified:** Added hard minimum dimensions to the root application wrapper to prevent Flexbox elements from overlapping and squishing when the viewport is resized.
+- **Files/Lines Edited:**
+  - `launcher/src/App.tsx`: Lines 38-39 (Added `minWidth: '1100px', minHeight: '650px', overflow: 'hidden'` to the main outer `<div>`).
+- **Reason:** The user reported that when shrinking the window to its minimum size, the sidebars were crushing the center UI elements. This change forces the browser to respect desktop application minimum bounds.
+
+## [2026-07-02 23:46:00] - Iteration 22: Bugfix - Bulletproof Flexbox Squishing
+- **Modified:** Changed root `overflow` to `auto` to gracefully handle user resizing, and injected explicit `minWidth: 500px` onto the inner flexible content columns.
+- **Files/Lines Edited:**
+  - `launcher/src/App.tsx`: Line 39 (Changed `overflow: hidden` to `overflow: auto`).
+  - `launcher/src/components/Marketplace.tsx`: Line 220 (Added `minWidth: '500px'` to the main mod list flex container).
+  - `launcher/src/components/Library.tsx`: Line 23 (Added `minWidth: '500px'` to the grid flex container).
+- **Reason:** The initial `minWidth` fix on the root App container didn't prevent inner flex-children from squishing if the browser window itself was forcibly shrunk by the user. Adding explicit minimum dimensions to the inner columns guarantees they will never compress below their readable state.
+
+## [2026-07-02 23:51:00] - Iteration 23: Bugfix - Final Layout Wrapping
+- **Modified:** Added `flexShrink: 0` to the right sidebar, bumped `minWidth` on the main wrapper, and added `flexWrap: 'wrap'` to the top action bars.
+- **Files/Lines Edited:**
+  - `launcher/src/components/RightSidebar.tsx`: Line 17 (Added `flexShrink: 0`).
+  - `launcher/src/App.tsx`: Line 66 (Added `minWidth: '700px'` to the `<main>` tag).
+  - `launcher/src/components/Marketplace.tsx`: Line 236 (Added `flexWrap: 'wrap'` to the pagination bar).
+  - `launcher/src/components/Library.tsx`: Line 26 (Added `flexWrap: 'wrap'` to the action bar).
+- **Reason:** The previous fix prevented the center columns from shrinking, but the outer flex containers were still overlapping elements (like the pagination buttons and search bar) when space ran out. This forces the sidebars to remain static and the inner rows to wrap gracefully onto new lines.
+## [2026-07-02 23:54:00] - Iteration 24: Minimum Bounds Adjustment
+- **Modified:** Increased the global absolute minimum window size.
+- **Files/Lines Edited:**
+  - `launcher/src/App.tsx`: Line 39 (Changed `minWidth` to `1360px` and `minHeight` to `720px`).
+  - `launcher/electron/main.cjs`: Lines 8-11 (Updated Electron `BrowserWindow` OS-level `minWidth` and `width` to `1360`).
+- **Reason:** While the React container was set to 1360x720, the physical OS window was still allowing the user to shrink it to 1200x720. Locking the physical OS window ensures the layout cannot be dragged past the 1360px threshold, eliminating any scrollbars or squishing.
+
+## [2026-07-02 23:58:00] - Iteration 25: Official Custom Client Logo
+- **Modified:** Replaced the generic SVG placeholder logo in the Sidebar with the official Custom Client 'C' logo, and wired it into the Windows Taskbar.
+- **Files/Lines Edited:**
+  - `launcher/src/components/Sidebar.tsx`: Lines 25-27 (Swapped the inline `<svg>` for an `<img src="/logo.png" />`).
+  - `launcher/electron/main.cjs`: Line 12 (Injected `icon: path.join(__dirname, '../public/logo.png')` into the `BrowserWindow` config).
+- **Reason:** The user provided the official brand logo and requested it replace the placeholder graphic in both the internal UI and the external OS taskbar.
+
+## [2026-07-03 00:06:00] - Iteration 26: Unified Purple Button Theme & Animations
+- **Modified:** Changed the global primary accent color from green to purple, applied the premium "Launch" button styling and hover sweep animations to all `.btn-primary` elements, and removed conflicting inline blue/green colors.
+- **Files/Lines Edited:**
+  - `launcher/src/index.css`: Lines 28-29 (Updated global variables to purple), Lines 94-118 (Updated `.btn-primary` to match `.btn-launch` animations).
+  - `launcher/src/components/Library.tsx`: Line 37 (Removed inline blue background).
+  - `launcher/src/components/Home.tsx`: Line 83 (Removed inline blue background on the Home screen's New Profile button), Line 103 (Changed active profile glow from green to purple).
+  - `launcher/src/components/Marketplace.tsx`: Lines 126, 370 (Changed green box-shadows and icon colors to purple).
+- **Reason:** The user noted that the massive purple Launch Game button and the smaller blue/green action buttons clashed stylistically. This unifies the entire UI to use the exact same metallic purple gradient and micro-animations for every primary action button across the application.
+
+## [2026-07-03 00:11:00] - Iteration 27: Modrinth API Facet Fix
+- **Modified:** Changed the Modrinth API query builder so it no longer forces the `categories:fabric` facet when searching for Resource Packs or Shaders.
+- **Files/Lines Edited:**
+  - `launcher/src/components/Marketplace.tsx`: Lines 42-46 (Made the `fabric` facet conditional based on `projectType`).
+- **Reason:** Resource Packs and Shaders on Modrinth are typically engine-agnostic or depend on mods like Iris/Optifine, rather than being tagged specifically with the "fabric" loader category. Forcing that tag resulted in the API returning less than 15 results globally. Removing the restriction for those tabs restores the full database.
+
+## [2026-07-03 00:14:00] - Iteration 28: Official Hero Banner Integration
+- **Added:** Copied the user's `bg.png` banner image into the launcher's `public` directory.
+- **Modified:** Replaced the generic "WIP - Hero Banner" SVG placeholder with the official `bg.png` image on the Home screen.
+- **Modified:** Upgraded the hero banner's solid dark overlay to a premium radial gradient. This naturally vignettes the edges of the image while spotlighting the center "LAUNCH GAME" button.
+- **Files/Lines Edited:**
+  - `launcher/src/components/Home.tsx`: Lines 15-17 (Removed the SVG variable), Lines 37-51 (Linked `/bg.png`, added `background-size: cover`, and added a radial gradient overlay).
+- **Reason:** The user provided their official banner artwork. Implementing `backgroundSize: 'cover'` ensures the image dynamically scales and crops beautifully regardless of window proportions, while the radial gradient ensures the purple launch button remains perfectly readable against any background artwork.
+
+## [2026-07-03 00:21:00] - Iteration 29: Premium Sidebar Icons & State Toggles
+- **Modified:** Changed the Home icon from a generic house to a `Gamepad2` controller icon to match gaming launcher conventions.
+- **Modified:** Removed the purple accent color from active sidebar tabs and the active indicator strip, reverting them to clean white.
+- **Added:** Implemented dynamic SVG fill properties. Icons are now hollow/outlined when inactive, and transition to solid filled shapes when active.
+- **Files/Lines Edited:**
+  - `launcher/src/components/Sidebar.tsx`: Line 1 (Imported `Gamepad2`), Lines 33-60 (Changed active color to `white` and added `fill={activeTab === item.id ? "currentColor" : "none"}`), Lines 72-88 (Applied the same white color logic and fill logic to the bottom settings tab).
+- **Reason:** The user requested "good icons" similar to their examples, preferring clean white indicators over purple to prevent the sidebar from looking overly saturated. Adding a solid fill state when active perfectly matches the aesthetic seen in premium apps like Discord and Steam.
+
+## [2026-07-03 00:26:00] - Iteration 30: Modrinth Infinite Scroll & Skeletons
+- **Removed:** Deleted the manual "Prev / Next" pagination buttons from the Marketplace.
+- **Added:** Implemented an `onScroll` event listener on the main mod list container to detect when the user hits the bottom and automatically fetch the next page of results.
+- **Modified:** Changed the Modrinth `fetchMods` logic to append new results to the array on infinite scroll, rather than replacing the array completely.
+- **Added:** Built custom animated skeleton loaders that mimic the layout of a mod card, displaying during both initial load and bottom-scroll load. Added a custom `.skeleton` CSS pulse animation to match.
+- **Files/Lines Edited:**
+  - `launcher/src/index.css`: Lines 298-305 (Added `@keyframes skeleton-pulse` and `.skeleton`).
+  - `launcher/src/components/Marketplace.tsx`: (Complete refactor of `fetchMods`, added `loadingMore` state, added `renderSkeletons`, bound `onScroll` to the main container, and wiped `mods` array on new search queries).
+- **Reason:** Infinite scroll provides a much smoother, modern browsing experience than manual pagination. The skeleton loaders provide immediate feedback that more content is arriving, exactly matching the user's provided mockup.
+
+## [2026-07-03 00:28:00] - Iteration 31: Native Local Screenshot Fetching
+- **Modified:** Disabled `webSecurity` in Electron's `main.cjs` to allow the React frontend to securely fetch local `file://` resources from the user's hard drive without triggering browser security blocks.
+- **Added:** Replaced the mock placeholder array in `Screenshots.tsx` with a `useEffect` that utilizes Node.js `fs` and `path` to directly read the `%appdata%/.minecraft/screenshots` directory.
+- **Added:** Implemented sorting by newest-first using file `mtimeMs`, automatic file size conversion to MB, and exact filename extraction.
+- **Added:** Wired up the `Folder` button to use Electron's `shell.openPath` to instantly open the user's screenshots directory in Windows Explorer.
+- **Files/Lines Edited:**
+  - `launcher/electron/main.cjs`: Line 17 (Added `webSecurity: false`).
+  - `launcher/src/components/Screenshots.tsx`: Lines 1-115 (Replaced dummy array with `fs.readdirSync` logic, added `file://` URL construction, and added `handleOpenFolder` logic).
+- **Reason:** The user requested the screenshots gallery stop using placeholders and start showing actual game screenshots from their local `.minecraft` folder. Bypassing standard browser restrictions via Electron's Node integration enables deep file system access for a native desktop experience.
+
+## [2026-07-03 00:33:00] - Iteration 32: Interactive Screenshot Controls
+- **Added:** Bound Electron's native `shell.openPath` to the main image overlay. Clicking anywhere on the screenshot now instantly opens it in the default Windows image viewer.
+- **Added:** Built a `handleShare` function that uses Electron's native `clipboard` module. Clicking the share button reads the local file into a `nativeImage` buffer and copies it directly to the system clipboard for immediate pasting into Discord/social media.
+- **Added:** Implemented a temporary "Copied to clipboard!" UI badge that pulses on the screen for 2.5 seconds when the share button is clicked.
+- **Added:** Built a `handleDelete` function that utilizes Node's `fs.unlinkSync` to permanently delete the screenshot file from the hard drive (with a browser confirmation prompt), then instantly updates the React state to remove the card from the UI.
+- **Added:** Added standard HTML5 HTMLAnchorElement click logic to trigger a browser-level "Save As" / download prompt for the Download button.
+- **Files/Lines Edited:**
+  - `launcher/src/components/Screenshots.tsx`: Lines 78-125 (Added handler functions), Lines 130-155 (Wired up `onClick` and `e.stopPropagation()` logic on the buttons and overlay, added `copiedId` UI).
+- **Reason:** Converting the screenshot gallery from a static list into a fully interactive file manager. The user explicitly requested clipboard sharing and native image viewing. Utilizing Electron's clipboard and shell modules provides a seamless native desktop experience.
+
+## [2026-07-03 00:36:00] - Iteration 33: Dynamic Avatar Fetching
+- **Added:** Built and exported a `getPlayerAvatar` helper function that dynamically fetches 3D rendered Minecraft heads.
+- **Modified:** Replaced the broken Crafatar UUID links in the Social Hub friends list with the new username-based fetcher function.
+- **Files/Lines Edited:**
+  - `launcher/src/components/RightSidebar.tsx`: Lines 4-7 (Defined and exported `getPlayerAvatar`), Lines 11-12 (Applied the function to the `friends` array).
+- **Reason:** Crafatar APIs usually require a UUID lookup first, causing broken image links if provided raw usernames. The new helper function uses `mc-heads.net`, which accepts usernames directly. It is exported so it can be reused later when the full Social Hub is built.
+
+## [2026-07-03 00:37:00] - Iteration 34: Social Hub Friends List Refine
+- **Added:** Added a "+ Add" button next to the Online section header using the `UserPlus` icon for quick friend requests.
+- **Modified:** Split the single friends array map into two distinct sections: "Online" and "Offline", dynamically counting the array length for the headers (e.g., "Online (1)").
+- **Added:** Applied a distinct visual style to offline friends. Their cards are slightly faded (opacity: 0.6) and their avatars receive a CSS `grayscale(100%) brightness(70%)` filter to immediately distinguish them from active players.
+- **Files/Lines Edited:**
+  - `launcher/src/components/RightSidebar.tsx`: Lines 153-200 (Replaced the single `.map` loop with separated Online/Offline filtered loops and added the Add button).
+- **Reason:** To match standard gaming client UX (like Discord or Steam) where online and offline friends are distinctly separated and visually differentiated.

@@ -20,10 +20,10 @@ export default function Library() {
     <div className="animate-fade" style={{ display: 'flex', height: '100%', gap: '24px' }}>
       
       {/* Left Area: Grid of Modpacks */}
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '24px', overflowY: 'auto', paddingRight: '8px' }}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '24px', overflowY: 'auto', paddingRight: '8px', minWidth: '500px' }}>
         
         {/* Top Action Bar */}
-        <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
+        <div style={{ display: 'flex', gap: '16px', alignItems: 'center', flexWrap: 'wrap' }}>
           <button className="glass btn" style={{ padding: '10px 20px', borderRadius: '12px' }}>
             <Box size={16}/> Modpacks <ChevronDown size={14}/>
           </button>
@@ -34,7 +34,7 @@ export default function Library() {
           <button className="glass btn" style={{ padding: '10px 20px', borderRadius: '12px' }}>
             Popular <ChevronDown size={14}/>
           </button>
-          <button className="btn btn-primary" style={{ padding: '10px 20px', borderRadius: '12px', background: 'linear-gradient(135deg, #0ea5e9, #2563eb)' }}>
+          <button className="btn btn-primary btn-lift" style={{ padding: '10px 20px', borderRadius: '12px' }}>
             <Plus size={16}/> New Profile
           </button>
         </div>
