@@ -1,4 +1,3 @@
-import React from 'react';
 import { Gamepad2, Compass, Library, Settings, LogIn, Users, Image as ImageIcon } from 'lucide-react';
 
 export default function Sidebar({ activeTab, setActiveTab }: { activeTab: string, setActiveTab: (tab: string) => void }) {
@@ -23,7 +22,7 @@ export default function Sidebar({ activeTab, setActiveTab }: { activeTab: string
     }}>
       {/* Brand Icon */}
       <div style={{ marginBottom: '32px' }}>
-        <img src="/logo.png" alt="Custom Client Logo" style={{ width: '36px', height: '36px', objectFit: 'contain' }} />
+        <img src="/logo.png" alt="Atyachari's Custom Client Logo" style={{ width: '36px', height: '36px', objectFit: 'contain' }} />
       </div>
 
       {/* Main Nav */}
@@ -65,10 +64,22 @@ export default function Sidebar({ activeTab, setActiveTab }: { activeTab: string
       <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
         <button
           onClick={() => setActiveTab('friends')}
-          style={{ background: 'transparent', border: 'none', color: 'var(--text-secondary)', padding: '12px', cursor: 'pointer' }}
+          style={{ background: 'transparent', border: 'none', color: activeTab === 'friends' ? 'white' : 'var(--text-secondary)', padding: '12px', cursor: 'pointer', position: 'relative' }}
           title="Friends"
         >
-          <Users size={24} />
+          <Users size={24} fill={activeTab === 'friends' ? "currentColor" : "none"} />
+          {activeTab === 'friends' && (
+            <div style={{
+              position: 'absolute',
+              left: '-20px',
+              top: '50%',
+              transform: 'translateY(-50%)',
+              width: '4px',
+              height: '24px',
+              backgroundColor: 'white',
+              borderRadius: '0 4px 4px 0'
+            }} />
+          )}
         </button>
         <button
           onClick={() => setActiveTab('settings')}

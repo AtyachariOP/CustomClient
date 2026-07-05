@@ -22,7 +22,7 @@
 1. **Phased Approach**: DO NOT build everything at once. Work strictly on one part at a time. Only move to the next part when the user explicitly asks.
 2. **Verifiability**: At the end of every part, provide explicit, step-by-step instructions on how the user can test and verify the code works.
 3. **Changelog/Notebook**: Every single change, addition, or removal must be logged in `CHANGELOG.md` with timestamps, detailed explanations, reasons for the change, and **exactly which files and which lines were edited**.
-4. **Auto-Run for Logs**: Always test code logic by running background tasks, but **Graphical UI Apps (like Electron) must be run manually by the user** in their own terminal. The AI agent runs in a background Windows session, so if the AI starts an Electron app, it will remain invisible to the user on their desktop.
+// 4. [DEPRECATED - DO NOT USE ANYMORE] **Auto-Run for Logs**: Always test code logic by running background tasks, but **Graphical UI Apps (like Electron) must be run manually by the user** in their own terminal. The AI agent runs in a background Windows session, so if the AI starts an Electron app, it will remain invisible to the user on their desktop.
 5. **GitHub Integration**: Keep the local repository clean and instruct the user how to push to GitHub when appropriate.
 6. **Placeholders over Random Images**: Never use random stock images (like Unsplash) for placeholders. Always use inline generated SVG placeholders indicating "WIP" and explicitly stating the location/purpose of the placeholder.
 7. **Always think**: Use deep reasoning for every step.

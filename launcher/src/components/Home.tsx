@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Play, Download, Star, Box, ChevronDown, Search, Plus, User } from 'lucide-react';
+import { useState } from 'react';
+import { Play, Box, ChevronDown, Search, Plus, User } from 'lucide-react';
 
 export default function Home() {
   const [activeProfile, setActiveProfile] = useState("ATYACHARI PRIV.");
@@ -18,7 +18,10 @@ export default function Home() {
       
       {/* Top Navigation Bar */}
       <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexShrink: 0 }}>
-        <h1 style={{ fontSize: '24px', fontWeight: 700 }}>Welcome to Custom Client!</h1>
+        <div>
+          <h1 style={{ fontSize: '24px', fontWeight: 700 }}>Welcome to Custom Client!</h1>
+          <p style={{ fontSize: '12px', color: 'var(--accent-primary)', fontWeight: 500, marginTop: '4px', fontFamily: "'Manrope', sans-serif", letterSpacing: '0.5px' }}>By Atyachari</p>
+        </div>
         <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
           <span style={{ color: 'var(--text-secondary)', fontSize: '14px' }}>0 Instances running</span>
         </div>
@@ -73,7 +76,7 @@ export default function Home() {
               <input 
                 type="text" 
                 placeholder="Search your modpacks..." 
-                style={{ background: 'transparent', border: 'none', color: 'white', outline: 'none', width: '100%', fontSize: '14px' }} 
+                style={{ background: 'transparent', border: 'none', color: 'var(--text-primary)', outline: 'none', width: '100%', fontSize: '14px' }} 
               />
             </div>
             
@@ -115,7 +118,7 @@ export default function Home() {
                       </div>
                     </div>
                     
-                    <button className="btn-lift" style={{ width: '32px', height: '32px', borderRadius: '50%', background: 'rgba(255,255,255,0.1)', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', cursor: 'pointer' }}>
+                    <button className="btn-lift" style={{ width: '32px', height: '32px', borderRadius: '50%', background: 'rgba(255,255,255,0.1)', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-primary)', cursor: 'pointer' }}>
                       <Play size={14} fill="currentColor" />
                     </button>
                   </div>

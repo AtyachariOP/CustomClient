@@ -276,3 +276,153 @@
 - **Files/Lines Edited:**
   - `launcher/src/components/RightSidebar.tsx`: Lines 153-200 (Replaced the single `.map` loop with separated Online/Offline filtered loops and added the Add button).
 - **Reason:** To match standard gaming client UX (like Discord or Steam) where online and offline friends are distinctly separated and visually differentiated.
+
+## [2026-07-03 17:35:00] - Environment Recovery (PC Reset)
+- **Added:** Restored Node.js LTS (v24.18.0) and Eclipse Temurin JDK 17 (17.0.19.10) via `winget` CLI.
+- **Modified:** Refreshed path variables to link newly installed utilities and checked Git (v2.55.0).
+- **Reason:** User reset their local machine due to virus infection, requiring recovery of the essential client development tools.
+
+## [2026-07-03 17:37:00] - JDK 21 Installation
+- **Added:** Installed Eclipse Temurin JDK 21 (v21.0.11.10) via `winget` CLI.
+- **Modified:** Refreshed path environment variables to set JDK 21 as the active system Java compiler.
+- **Reason:** User requested to upgrade the environment to JDK 21.
+
+## [2026-07-03 17:48:00] - Deprecated Launcher Manual Run Rule
+- **Modified:** [ReadmefirstAi.md](file:///e:/Custom%20Client/ReadmefirstAi.md): Line 25 (Prepended `//` and marked Rule 4 as deprecated/do not use anymore).
+- **Reason:** User requested to remove the strict rule requiring them to run Graphical UI Apps manually from their own terminal, indicating they would like to be able to run it from the agent.
+
+## [2026-07-03 17:40:28] - Codebase Optimization & External Debugger Implementation
+- **Added:** Created a standalone `DebugApp.tsx` and `debug.html` entry point for an isolated External Debugger Window.
+- **Added:** Implemented live FPS/RAM/CPU graphs, Hardware Simulation buttons (Low/High end), Animation freezers, Responsive resizing, and a Logging Bridge in the Debugger.
+- **Modified:** `launcher/electron/main.cjs` to launch the secondary `debugWindow` and route IPC messages between the Main Window and Debug Window.
+- **Modified:** Overhauled `App.tsx` to implement `React.lazy()` and `<Suspense>` to drastically cut initial load times by code-splitting heavy tabs (`Marketplace`, `Library`, `Screenshots`).
+- **Modified:** Cleaned up unused imports (React, Lucide icons, useEffect) across 7 major components (`Home`, `Marketplace`, `Library`, `Sidebar`, `RightSidebar`, `Settings`, `Screenshots`).
+- **Modified:** Fixed strict TypeScript prop typings for `cursorData` and `WebkitAppRegion` in `App.tsx` and `Settings.tsx`, resulting in 0 build errors.
+- **Modified:** Added `declare global { interface Window { require: any; } }` to `Screenshots.tsx` to resolve NodeIntegration type errors in Vite.
+- **Reason:** User explicitly requested a codebase cleanup, pruning, and optimization pass, followed by the creation of a temporary, safe, and instantly deletable External Debugger window to test UI responsiveness and performance configurations.
+
+## [2026-07-03 17:46:39] - UI Redesign & True Hardware Simulation
+- **Modified:** Completely overhauled `index.css` to transition from a dark theme to a vibrant light glassmorphism theme (`var(--bg-sidebar): rgba(255, 255, 255, 0.65)`, `backdrop-filter: blur(40px)`).
+- **Modified:** Removed the Minecraft video background in `App.tsx` and replaced it with CSS-animated glowing Pink/Magenta and Green orbs to match the user's reference image.
+- **Modified:** Refactored text colors across all 7 major React components from hardcoded `white` to `var(--text-primary)` to ensure readability on the new light frosted glass.
+- **Added:** Implemented true physical CPU and RAM throttling in `main.cjs` using an event loop busy-wait (`setInterval` blocking for 85ms) and massive unmanaged buffer allocation (`Buffer.allocUnsafe(100MB) * 15`).
+- **Modified:** Updated the `DebugApp.tsx` hardware simulator buttons to trigger the new physical IPC throttling handlers.
+- **Reason:** User requested the UI be redesigned to look extremely glossy and vibrant (matching an attached image), and requested the hardware simulator to physically limit CPU and RAM rather than just stripping CSS classes.
+
+## [2026-07-03 17:52:20] - UI Theme Revert & RAM Tracker Fix
+- **Modified:** Reverted `index.css` variables back to the Dark Theme (`var(--bg-app): #09090b`) because the user requested the client retain its dark mode aesthetic while keeping the glossy glassmorphism blobs.
+- **Modified:** Adjusted opacity of Pink/Green gradient orbs in `index.css` to blend better with the dark background.
+- **Modified:** Updated `DebugApp.tsx` metrics tracker to use `process.memoryUsage().rss` instead of `process.getSystemMemoryInfo()`.
+- **Reason:** User indicated the Light Mode transition was a mistake and they wanted the Dark Theme retained. Also requested the RAM monitor in the Debug window only show the Client's specific memory usage, not total System memory usage.
+
+## [2026-07-03 19:45:50] - Developer Inspector V2 Implementation
+- **Added:** Built `inspector.html`, `src/inspector.tsx`, and `src/InspectorApp.tsx` as a massive standalone Developer Tools window (similar to Figma/Chrome DevTools).
+- **Added:** Built `src/InspectorBridge.tsx` to act as a 100% isolated integration layer. It attaches global `mousemove`, `click`, and `keydown` listeners, computes DOM styles, draws blue highlight overlays over hovered elements, and relays everything via IPC to the Inspector Window.
+- **Modified:** Added `<InspectorBridge />` to `App.tsx`.
+- **Modified:** Added `createInspectorWindow()` to `main.cjs` along with `inspector:action` and `inspector:relay-data` IPC channels.
+- **Modified:** Added `inspector.html` to `vite.config.ts` Rollup build inputs.
+- **Reason:** User requested a temporary, deeply integrated but highly isolated DevTools Inspector that allows them to hover over UI components in real-time, see padding/margins/bounds, edit CSS properties live, debug layouts with constraint boxes, and stream global events. Designed to be instantly deletable on command.
+
+## [2026-07-03 19:52:56] - Simulator Tab Complete Rewrite (Performance Profiler)
+- **Modified:** Completely removed the CSS Property Editor from rendering inside the Simulator Tab in `InspectorApp.tsx` (restricting it only to the Inspect Tab).
+- **Added:** Built a massive Performance Profiler dashboard inside the Simulator tab featuring live radial gauges, scrolling SVG frame graphs, and hardware spec cards.
+- **Added:** Injected a `requestAnimationFrame` loop into `InspectorBridge.tsx` to calculate true UI Render FPS, exact Frame Times (ms), 1% Low FPS, and DOM node counts, streaming them to the IPC every 1 second.
+- **Added:** Updated `main.cjs` to fetch raw system hardware info (using `os.cpus()`, `os.totalmem()`, and Electron's `app.getGPUInfo()`) and send it to the Simulator dashboard.
+- **Added:** Implemented Feature Toggles (Blur, Shadows, Animations) in the Simulator that instantly inject CSS overrides via the Bridge to disable effects and measure FPS impact.
+- **Reason:** User requested the Simulator be completely decoupled from CSS editing and rebuilt into a professional Performance Profiler similar to Chrome DevTools Performance / Unreal Engine Stat commands.
+## [2026-07-03 20:09:24] - Developer Options Cleanup & Debugger Purge
+- **Removed:** Completely deleted the old `DebugApp.tsx`, `debug.tsx`, `debug.html` and their IPC handlers (`debug:force-low-end`, etc) from the main process and `App.tsx`.
+- **Reason:** The original debugger was no longer needed and duplicated functionality. The user requested it be permanently purged and replaced by the new Developer Options.
+- **Removed:** Completely deleted the "Inspect", "Theme", and "Events" tabs from Developer Options, along with all their background DOM-stalking and theme-scanning logic in `InspectorBridge.tsx`.
+- **Reason:** The user requested the removal of the first 3 tabs to streamline the Developer Options exclusively for performance monitoring.
+- **Modified:** Renamed the "Developer Inspector V2" window to **"Developer Options"** and renamed the "Simulator" tab to the **"Performance"** tab.
+- **Reason:** User requested the name changes to better reflect the new exclusive focus on performance telemetry.
+- **Added:** Hooked into Electron's native `app.getAppMetrics()` API in `main.cjs` to extract the exact real-time CPU % and RAM usage of the launcher's background processes and display them.
+- **Reason:** User requested actual client RAM and CPU usage be displayed instead of generic system memory usage.
+- **Added:** Registered a global desktop shortcut `Win + F1` (and `CommandOrControl+F1`) in `main.cjs`.
+- **Reason:** User requested a global shortcut to seamlessly trigger the new Developer Options window at any time.
+
+## [2026-07-03 20:13:04] - Telemetry Accuracy Fixes
+- **Modified:** Fixed CPU telemetry calculation in `main.cjs`. Removed the division by logical cores because Electron's `app.getAppMetrics().percentCPUUsage` already returns the total system percentage on Windows.
+- **Reason:** User provided a screenshot showing Developer Options CPU (0.6%) was severely under-reporting compared to Windows Task Manager (7.1%).
+- **Modified:** Reverted the RAM metric from `privateBytes` back to `workingSetSize` and updated the UI label to "RAM (Total)".
+- **Reason:** The user noted RAM was higher than Task Manager. Task Manager deduplicates shared Chromium memory (V8, etc) for process trees. Electron's API cannot natively output this deduplicated "Private Working Set", so the metric was reverted to the raw physical working set to avoid misrepresenting the commit size as physical RAM.
+
+## [2026-07-03 20:21:19] - Marketplace Performance Optimization (Virtualization)
+- **Added:** Installed `@tanstack/react-virtual` as a new dependency in `package.json`.
+- **Reason:** Necessary to implement DOM virtualization (windowing) for the infinite scrolling list.
+- **Fixed:** Implemented `useVirtualizer` in `Marketplace.tsx` for the main mod list. This caps the rendered DOM nodes to only visible items, completely eliminating FPS drops and stuttering.
+- **Reason:** User reported that scrolling infinitely caused the FPS to decrease significantly. The Bottleneck Detector flagged a "Deep DOM" warning (4487 nodes) which was causing massive layout recalculations.
+- **Modified:** Pinned the Search Bar and "Sort By" filters to the top of the Marketplace.
+- **Reason:** Required by the virtualization engine to maintain proper absolute positioning of the scrolling items, and significantly improves UX by keeping search accessible.
+
+## [2026-07-03 21:58:38] - Marketplace Sidebar Overhaul
+- **Added:** Implemented accordion-style collapsible sections for Game Version, Loader, Category, Environment, and License in the Marketplace sidebar.
+- **Reason:** User requested a UI overhaul matching Modrinth's official layout.
+- **Added:** Integrated Modrinth API fetching for `game_version` tags to dynamically populate the version list and included an inline search filter.
+- **Reason:** Allows users to accurately filter mods by their target Minecraft release version.
+- **Modified:** Locked the Loader filter exclusively to Fabric (visual-only checkboxes for Forge and NeoForge are greyed out).
+- **Reason:** User specifically instructed to "not add anything other then Fabric mods".
+- **Added:** Implemented `open_source:true` facet filtering to the Modrinth API search query when the License filter is checked.
+- **Reason:** Fulfills the requirement to accurately map all sidebar filters to their respective Modrinth facet properties.
+
+## [2026-07-03 22:51:10] - Settings UI Complete Overhaul
+- **Modified:** Reordered the settings sidebar tabs to: General, Game, Account, Storage, Notifications, Privacy.
+- **Reason:** Improved UX by following standard software configuration hierarchies.
+- **Added:** Built out full UI for General settings (Launch Behavior, Hardware Acceleration, Language).
+- **Reason:** User requested to "fill the settings accordingly" with essential launcher features.
+- **Added:** Expanded Game settings to include Game Resolution inputs and JVM Arguments input.
+- **Reason:** Essential core features for any Minecraft launcher to control the instance process.
+- **Added:** Built out full UI for Account settings, displaying an active mocked Microsoft session with the user's avatar.
+- **Reason:** Provides a visual framework for the upcoming authentication logic.
+- **Added:** Built out full UI for Storage (Installation directory path, Clear Cache), Notifications (update/crash toggles), and Privacy (Discord Rich Presence, Telemetry).
+- **Reason:** Rounds out the empty tabs with functional, visually complete configurations.
+
+## [2026-07-03 22:56:30] - Settings UI Aesthetics Polish
+- **Added:** Created a `<CustomDropdown>` React component and replaced all native `<select>` dropdowns in Settings.
+- **Reason:** Native select elements break the premium dark mode aesthetics. The custom component aligns visually with the rest of the app.
+- **Added:** Global `.input-premium` CSS class added to `index.css` to handle consistent styling and focus micro-animations for all text inputs.
+- **Reason:** Enhances the interactive feel of inputs when clicked or focused.
+- **Added:** Custom CSS styling applied globally for `input[type=range]` to completely replace the native OS slider with a purple accent thumb and scale animations.
+- **Reason:** Ensures sliders match the custom color palette and provide satisfying hover/active feedback.
+
+## [2026-07-04 14:51:30] - Dedicated Modpack Configuration Window
+- **Added:** Created `ModpackWindow.tsx`, a full-screen instance configuration modal.
+- **Reason:** Provides a dedicated space to manage instance-specific settings like mods, resource packs, and java arguments without cluttering the library.
+- **Added:** Built out the "Files" view inside the Modpack Window matching Lunar Client's design, including a styled warning banner and directory copy/reset controls.
+- **Reason:** Fulfills the requirement to accurately replicate the provided reference UI.
+- **Modified:** Hooked the Settings gear icon in `Library.tsx`'s right sidebar to open the `ModpackWindow` and pass it the active instance context.
+- **Reason:** Integrates the new window smoothly into the existing user flow while preserving quick-launch capability.
+
+## [2026-07-04 15:00:30] - Marketplace Install to Profile Modal
+- **Added:** Created `InstallModal.tsx` to handle the flow of installing marketplace content (mods, resource packs, etc.) to specific profiles.
+- **Reason:** Fulfills user request to intercept the direct installation action and prompt the user to choose an existing profile.
+- **Added:** Designed the modal to include a search bar, a "Create" profile button placeholder, and a filtered list of mocked compatible profiles matching the user's reference images.
+- **Reason:** Accurate UI reproduction of the requested flow.
+- **Modified:** Updated the `Marketplace.tsx` "Install" buttons in both the list view and detail view to trigger the new `InstallModal` instead of instantly installing.
+- **Reason:** Wires up the new UI interaction seamlessly into the existing Marketplace.
+
+## [2026-07-04 15:05:30] - Installed Mods List (Modpack Window)
+- **Modified:** Updated `ModpackWindow.tsx` to replace the "coming soon" placeholder in the Mods tab with a fully functional UI list.
+- **Reason:** User noted that installed mods were not visible in the Modpack settings window after installation.
+- **Added:** Implemented React state and a `useEffect` hook to read the `installedMods` project IDs from `localStorage` and batch-fetch their details live from the Modrinth API (`/v2/projects?ids=[...]`).
+- **Reason:** Real data fetching allows the UI to display the actual mod icons, titles, and descriptions dynamically, maintaining the immersive experience.
+- **Added:** Built out glassmorphic UI cards for each installed mod featuring an "Enabled" badge and a "Delete/Trash" button which removes the mod from `localStorage` state.
+- **Reason:** Fulfills the requirement to provide mod management capabilities within the instance settings.
+
+## [2026-07-04 15:15:00] - Comprehensive Project Audit & Roadmap
+- **Added:** Created `audit_report.md` generating a full Project Health Report and Scorecard.
+- **Reason:** Acting as Lead PM/QA to establish a strict roadmap to take the app to production. Identifies all placeholders, mocked data, and missing backends.
+- **Added:** Created `TODO.md` in the root directory organizing tasks into logical Phases.
+## [2026-07-04 15:20:00] - Roadmap Phase 1 Execution (UI Completion)
+- **Added:** Extracted `modpacks` hardcoded array to `src/utils/defaultProfiles.ts` and loaded it into local storage via a custom `useLocalStorage` hook.
+- **Modified:** `Settings.tsx` and `ModpackWindow.tsx` now use `useLocalStorage` to persist changes to fields like Allocated Memory, Resolution, JVM Arguments, and Game Version.
+- **Added:** Fully implemented forms and empty states for the Java Environment, Versions, Export, Resource Packs, and Server Packs tabs in `ModpackWindow.tsx`.
+- **Added:** Error Boundary in `Marketplace.tsx`. If the Modrinth API fails, the user is presented with a red fallback UI with a retry button instead of a perpetually spinning skeleton list.
+## [2026-07-04 15:30:00] - Added Friends Hub UI
+- **Added:** New `FriendsHub.tsx` component acting as the main social page.
+- **Added:** Top navigation bar with tabs for Online, All, Pending, Blocked, and Add Friend.
+- **Added:** Reusable friend cards with avatars, status indicators, rich presence text, and contextual action buttons.
+- **Modified:** `Sidebar.tsx` to correctly handle active styling for the Friends tab.
+- **Modified:** `App.tsx` to lazily load and route the new FriendsHub component.
+- **Reason:** Provides a full-screen, robust UI for managing social connections akin to Discord, expanding the launcher's social capabilities.

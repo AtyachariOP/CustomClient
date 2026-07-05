@@ -1,6 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { Search, Grid, List, Download, Share2, Trash2, Calendar, Folder } from 'lucide-react';
 
+declare global {
+  interface Window {
+    require: any;
+  }
+}
+
 export default function Screenshots() {
   const [screenshots, setScreenshots] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -141,7 +147,7 @@ export default function Screenshots() {
         <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
           <div className="glass" style={{ display: 'flex', alignItems: 'center', padding: '0 16px', borderRadius: '8px', height: '40px', background: 'rgba(0, 0, 0, 0.2)' }}>
             <Search size={16} color="var(--text-secondary)" style={{ marginRight: '12px' }} />
-            <input type="text" placeholder="Search by server..." style={{ background: 'transparent', border: 'none', color: 'white', outline: 'none', width: '200px', fontSize: '13px' }} />
+            <input type="text" placeholder="Search by server..." style={{ background: 'transparent', border: 'none', color: 'var(--text-primary)', outline: 'none', width: '200px', fontSize: '13px' }} />
           </div>
           
           <button className="glass btn" onClick={handleOpenFolder} style={{ padding: '10px', borderRadius: '8px' }} title="Open Screenshots Folder">
@@ -149,7 +155,7 @@ export default function Screenshots() {
           </button>
           
           <div style={{ display: 'flex', background: 'rgba(0,0,0,0.2)', padding: '4px', borderRadius: '8px', gap: '4px' }}>
-             <button style={{ background: 'var(--accent-primary)', color: 'white', border: 'none', padding: '6px', borderRadius: '6px', cursor: 'pointer' }}><Grid size={16}/></button>
+             <button style={{ background: 'var(--accent-primary)', color: 'var(--text-primary)', border: 'none', padding: '6px', borderRadius: '6px', cursor: 'pointer' }}><Grid size={16}/></button>
              <button style={{ background: 'transparent', color: 'var(--text-secondary)', border: 'none', padding: '6px', borderRadius: '6px', cursor: 'pointer' }}><List size={16}/></button>
           </div>
         </div>
@@ -190,10 +196,10 @@ export default function Screenshots() {
                   opacity: hovered === shot.id ? 1 : 0, transition: 'opacity 0.2s', backdropFilter: 'blur(2px)'
                 }}>
                   <div style={{ display: 'flex', gap: '16px' }}>
-                    <button onClick={(e) => handleDownload(e, shot)} className="glass" style={{ padding: '12px', borderRadius: '50%', background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', color: 'white', cursor: 'pointer', transition: 'var(--transition-fast)' }} onMouseOver={(e) => e.currentTarget.style.background='rgba(255,255,255,0.2)'} onMouseOut={(e) => e.currentTarget.style.background='rgba(255,255,255,0.1)'} title="Download">
+                    <button onClick={(e) => handleDownload(e, shot)} className="glass" style={{ padding: '12px', borderRadius: '50%', background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', color: 'var(--text-primary)', cursor: 'pointer', transition: 'var(--transition-fast)' }} onMouseOver={(e) => e.currentTarget.style.background='rgba(255,255,255,0.2)'} onMouseOut={(e) => e.currentTarget.style.background='rgba(255,255,255,0.1)'} title="Download">
                       <Download size={20} />
                     </button>
-                    <button onClick={(e) => handleShare(e, shot)} className="glass" style={{ padding: '12px', borderRadius: '50%', background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', color: 'white', cursor: 'pointer', transition: 'var(--transition-fast)' }} onMouseOver={(e) => e.currentTarget.style.background='rgba(255,255,255,0.2)'} onMouseOut={(e) => e.currentTarget.style.background='rgba(255,255,255,0.1)'} title="Copy to Clipboard">
+                    <button onClick={(e) => handleShare(e, shot)} className="glass" style={{ padding: '12px', borderRadius: '50%', background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', color: 'var(--text-primary)', cursor: 'pointer', transition: 'var(--transition-fast)' }} onMouseOver={(e) => e.currentTarget.style.background='rgba(255,255,255,0.2)'} onMouseOut={(e) => e.currentTarget.style.background='rgba(255,255,255,0.1)'} title="Copy to Clipboard">
                       <Share2 size={20} />
                     </button>
                     <button onClick={(e) => handleDelete(e, shot)} className="glass" style={{ padding: '12px', borderRadius: '50%', background: 'rgba(239, 68, 68, 0.2)', border: '1px solid rgba(239, 68, 68, 0.4)', color: '#ef4444', cursor: 'pointer', transition: 'var(--transition-fast)' }} onMouseOver={(e) => e.currentTarget.style.background='rgba(239, 68, 68, 0.4)'} onMouseOut={(e) => e.currentTarget.style.background='rgba(239, 68, 68, 0.2)'} title="Delete">
@@ -203,7 +209,7 @@ export default function Screenshots() {
                   
                   {/* Copied indicator */}
                   {copiedId === shot.id && (
-                    <div className="animate-fade" style={{ background: 'var(--accent-primary)', color: 'white', padding: '4px 12px', borderRadius: '12px', fontSize: '12px', fontWeight: 600, boxShadow: '0 4px 12px rgba(168,85,247,0.4)' }}>
+                    <div className="animate-fade" style={{ background: 'var(--accent-primary)', color: 'var(--text-primary)', padding: '4px 12px', borderRadius: '12px', fontSize: '12px', fontWeight: 600, boxShadow: '0 4px 12px rgba(168,85,247,0.4)' }}>
                       Copied to clipboard!
                     </div>
                   )}

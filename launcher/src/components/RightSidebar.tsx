@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { ExternalLink, Users, UserPlus, MoreVertical, LogOut } from 'lucide-react';
 
 export const getPlayerAvatar = (username: string, size: number = 32) => {
@@ -50,7 +50,7 @@ export default function RightSidebar() {
               </div>
               <div style={{ flex: 1 }}>
                  <div style={{ fontSize: '12px', color: 'var(--text-secondary)', marginBottom: '2px' }}>Logged in as</div>
-                 <div style={{ fontSize: '16px', fontWeight: 700, color: 'white', letterSpacing: '0.5px' }}>Atyachari</div>
+                 <div style={{ fontSize: '16px', fontWeight: 700, color: 'var(--text-primary)', letterSpacing: '0.5px' }}>Atyachari</div>
               </div>
               <div style={{ position: 'relative' }}>
                 <button 
@@ -219,7 +219,7 @@ export default function RightSidebar() {
         }} />
         <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
           <button className="btn btn-primary" style={{ fontSize: '13px', padding: '10px', justifyContent: 'center', width: '100%' }}>
-             🚀 Subscribe to Custom Client+
+             🚀 Subscribe to Atyachari's Client+
           </button>
           <button className="btn" style={{ fontSize: '12px', padding: '8px', justifyContent: 'center', background: 'transparent', border: 'none', color: 'var(--text-secondary)' }}>
              Remove Ads
