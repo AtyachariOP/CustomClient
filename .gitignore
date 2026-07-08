@@ -14,3 +14,13 @@ npm-debug.log
 # OS
 .DS_Store
 Thumbs.db
+
+# Build outputs
+dist/
+dist-electron/
+release/
+
+# Environment Variables
+.env
+.env.*.local
+.env.local

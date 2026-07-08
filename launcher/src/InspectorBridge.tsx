@@ -4,7 +4,7 @@ export default function InspectorBridge() {
   useEffect(() => {
     // Only run if running in Electron
     if (!window.require) return;
-    
+
     const { ipcRenderer } = window.require('electron');
 
     // IPC listener for live edits from the Inspector V2 window
@@ -18,9 +18,12 @@ export default function InspectorBridge() {
           if (!style) {
             style = document.createElement('style');
             style.id = styleId;
-            if (feature === 'blur') style.innerHTML = `* { backdrop-filter: none !important; filter: none !important; }`;
-            if (feature === 'animations') style.innerHTML = `* { animation: none !important; transition: none !important; }`;
-            if (feature === 'shadows') style.innerHTML = `* { box-shadow: none !important; text-shadow: none !important; }`;
+            if (feature === 'blur')
+              style.innerHTML = `* { backdrop-filter: none !important; filter: none !important; }`;
+            if (feature === 'animations')
+              style.innerHTML = `* { animation: none !important; transition: none !important; }`;
+            if (feature === 'shadows')
+              style.innerHTML = `* { box-shadow: none !important; text-shadow: none !important; }`;
             document.head.appendChild(style);
           }
         } else {
@@ -50,15 +53,19 @@ export default function InspectorBridge() {
       // Calculate FPS and 1% Lows
       const fps = frames;
       frames = 0;
-      
+
       let avgFrameTime = 0;
       let onePercentLowFPS = fps;
-      
+
       if (frameTimes.length > 0) {
-        avgFrameTime = frameTimes.reduce((a, b) => a + b, 0) / frameTimes.length;
+        avgFrameTime =
+          frameTimes.reduce((a, b) => a + b, 0) / frameTimes.length;
         // Sort descending to find highest frame times (slowest frames)
         frameTimes.sort((a, b) => b - a);
-        const onePercentIndex = Math.max(0, Math.floor(frameTimes.length * 0.01));
+        const onePercentIndex = Math.max(
+          0,
+          Math.floor(frameTimes.length * 0.01),
+        );
         const onePercentSlowest = frameTimes[onePercentIndex] || avgFrameTime;
         onePercentLowFPS = Math.round(1000 / (onePercentSlowest || 16.6));
       }
@@ -69,10 +76,14 @@ export default function InspectorBridge() {
       const images = document.querySelectorAll('img');
       let visible = 0;
       let hidden = 0;
-      
-      allNodes.forEach(node => {
+
+      allNodes.forEach((node) => {
         const style = window.getComputedStyle(node);
-        if (style.display === 'none' || style.visibility === 'hidden' || style.opacity === '0') {
+        if (
+          style.display === 'none' ||
+          style.visibility === 'hidden' ||
+          style.opacity === '0'
+        ) {
           hidden++;
         } else {
           visible++;
@@ -85,8 +96,10 @@ export default function InspectorBridge() {
       if (process && process.memoryUsage) {
         nodeMem = Math.round(process.memoryUsage().rss / (1024 * 1024));
       }
-      
-      const jsHeap = (performance as any).memory ? Math.round((performance as any).memory.usedJSHeapSize / (1024 * 1024)) : 0;
+
+      const jsHeap = (performance as any).memory
+        ? Math.round((performance as any).memory.usedJSHeapSize / (1024 * 1024))
+        : 0;
 
       const telemetryData = {
         fps,
@@ -96,15 +109,18 @@ export default function InspectorBridge() {
           total: allNodes.length,
           visible,
           hidden,
-          images: images.length
+          images: images.length,
         },
         memory: {
           nodeMem,
-          jsHeap
-        }
+          jsHeap,
+        },
       };
 
-      ipcRenderer.send('inspector:relay-data', { type: 'telemetry', data: telemetryData });
+      ipcRenderer.send('inspector:relay-data', {
+        type: 'telemetry',
+        data: telemetryData,
+      });
     }, 1000);
 
     // Attach Event Listeners

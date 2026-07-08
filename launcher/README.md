@@ -1,32 +1,17 @@
-# React + TypeScript + Vite
+# Custom Client Launcher
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+## Setup Instructions
 
-Currently, two official plugins are available:
+1. **Prerequisites**: Ensure you have Node.js 20+ installed.
+2. **Install Dependencies**: Run `npm install` in the `launcher` directory.
+3. **Run Development Mode**: Run `npm run start` to start the Vite dev server and Electron.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Development Workflow
 
-## React Compiler
+- The project uses Vite + React + TypeScript for the renderer.
+- Electron's main process and preload scripts are in the `electron/` folder.
+- Formatting is enforced via Prettier (`npm run prettier`).
+- Linting is enforced via Oxlint (`npm run lint`).
+- Ensure all commits follow the branching and commit strategy outlined in the Phase Plan.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the Oxlint configuration
-
-If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
-
-```json
-{
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
-  "options": {
-    "typeAware": true
-  },
-  "rules": {
-    "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
-  }
-}
-```
-
-See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
+For detailed architecture, refer to `docs/architecture/blueprint-v2.0.md`.

@@ -9,5 +9,5 @@ const root = createRoot(rootElement);
 root.render(
   <React.StrictMode>
     <InspectorApp />
-  </React.StrictMode>
+  </React.StrictMode>,
 );
